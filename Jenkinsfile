@@ -107,7 +107,7 @@ pipeline {
             steps {
                 sh """
                 docker rm -f student-app || true
-                docker run -d -p 8080:8080 --name student-app ${IMAGE_URI}
+                docker run -d -p 8082:8080 --name student-app ${IMAGE_URI}
                 """
             }
         }
