@@ -4,7 +4,7 @@
     <title>Student Management</title>
 </head>
 <body>
-<h1>Welcome to Student Management App</h1>
+<h1>Welcome to Student Management App - BS  </h1>
 <a href="student?action=list">View Students</a>
 </body>
 </html>
