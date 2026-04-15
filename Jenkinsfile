@@ -81,10 +81,19 @@ pipeline {
 
         stage('Create ECR Repo if Not Exists') {
             steps {
-                sh """
-                aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${AWS_REGION} || \
-                aws ecr create-repository --repository-name ${ECR_REPO} --region ${AWS_REGION}
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws_credentials',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh """
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+        
+                    aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${AWS_REGION} || \
+                    aws ecr create-repository --repository-name ${ECR_REPO} --region ${AWS_REGION}
+                    """
+                }
             }
         }
 
