@@ -1,7 +1,7 @@
 @Library('my-shared-lib') _
 
 pipeline {
-    agent any
+    agent any 
 
     environment {
         AWS_REGION = "${Constant.AWS_REGION}"
