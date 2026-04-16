@@ -18,7 +18,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 deleteDir()
-                checkout scm   // ✅ IMPORTANT (enables GitHub status tracking)
+                checkout scm   
             }
         }
 
