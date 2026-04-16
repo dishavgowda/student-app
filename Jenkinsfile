@@ -3,6 +3,10 @@
 pipeline {
     agent any 
 
+    options {
+        skipDefaultCheckout()
+    }
+
     environment {
         AWS_REGION = "${Constant.AWS_REGION}"
         ACCOUNT_ID = "${Constant.ACCOUNT_ID}"
@@ -10,6 +14,14 @@ pipeline {
     }
 
     stages {
+
+        stage('Notify Start') {
+            steps {
+                script {
+                    githubNotify context: 'jenkins-docker', status: 'PENDING'
+                }
+            }
+        }
 
         stage('Checkout') {
             steps {
@@ -108,6 +120,19 @@ pipeline {
                 docker run -d -p ${Constant.CONTAINER_PORT_MAPPING} \
                 --name ${Constant.CONTAINER_NAME} ${IMAGE_URI}
                 """
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                githubNotify context: 'jenkins-docker', status: 'SUCCESS'
+            }
+        }
+        failure {
+            script {
+                githubNotify context: 'jenkins-docker', status: 'FAILURE'
             }
         }
     }
