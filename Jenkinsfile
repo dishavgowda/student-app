@@ -4,9 +4,9 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = Constant.AWS_REGION
-        ACCOUNT_ID = Constant.ACCOUNT_ID
-        ECR_REPO   = Constant.ECR_REPO
+        AWS_REGION = "${Constant.AWS_REGION}"
+        ACCOUNT_ID = "${Constant.ACCOUNT_ID}"
+        ECR_REPO   = "${Constant.ECR_REPO}"
     }
 
     stages {
