@@ -111,12 +111,4 @@ pipeline {
             }
         }
     }
-    post {
-        success {
-            githubNotify context: 'jenkins-ci', status: 'SUCCESS'
-        }
-        failure {
-            githubNotify context: 'jenkins-ci', status: 'FAILURE'
-        }
-    }
 }
