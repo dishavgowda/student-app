@@ -1,23 +1,25 @@
+@Library('my-shared-lib') _
+
 pipeline {
     agent any
 
     environment {
-        AWS_REGION = "ap-south-1"
-        ACCOUNT_ID = "042608219765"
-        ECR_REPO = "devops/sample-app"
+        AWS_REGION = Constant.AWS_REGION
+        ACCOUNT_ID = Constant.ACCOUNT_ID
+        ECR_REPO   = Constant.ECR_REPO
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                deleteDir() 
+                deleteDir()
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/main']],
+                    branches: [[name: "*/${Constant.GIT_BRANCH}"]],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/dishavgowda/student-app.git',
-                        credentialsId: 'github_token'
+                        url: Constant.GIT_URL,
+                        credentialsId: Constant.GIT_CREDENTIALS_ID
                     ]]
                 ])
             }
@@ -48,7 +50,7 @@ pipeline {
         stage('Deploy to Artifactory') {
             steps {
                 configFileProvider([configFile(
-                    fileId: '769a2761-858b-4e3c-9f22-f67b7cca93a6',
+                    fileId: Constant.MAVEN_SETTINGS_ID,
                     variable: 'MAVEN_SETTINGS'
                 )]) {
                     sh 'mvn deploy -s $MAVEN_SETTINGS'
@@ -69,7 +71,7 @@ pipeline {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws_credentials'
+                    credentialsId: Constant.AWS_CREDENTIALS_ID
                 ]]) {
                     sh """
                     aws ecr get-login-password --region ${AWS_REGION} | \
@@ -79,40 +81,34 @@ pipeline {
             }
         }
 
-       stage('Create ECR Repo if Not Exists') {
+        stage('Create ECR Repo if Not Exists') {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws_credentials'
+                    credentialsId: Constant.AWS_CREDENTIALS_ID
                 ]]) {
                     sh '''
-                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-        
                     aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${AWS_REGION} || \
                     aws ecr create-repository --repository-name ${ECR_REPO} --region ${AWS_REGION}
                     '''
                 }
             }
         }
+
         stage('Push to ECR') {
             steps {
-                sh """
-                docker push ${IMAGE_URI}
-                """
+                sh "docker push ${IMAGE_URI}"
             }
         }
 
         stage('Run Container') {
             steps {
                 sh """
-                docker rm -f student-app || true
-                docker run -d -p 8082:8080 --name student-app ${IMAGE_URI}
+                docker rm -f ${Constant.CONTAINER_NAME} || true
+                docker run -d -p ${Constant.CONTAINER_PORT_MAPPING} \
+                --name ${Constant.CONTAINER_NAME} ${IMAGE_URI}
                 """
             }
         }
     }
 }
-
-
-
