@@ -1,2 +1,3 @@
 clean test
 final trigger real
+The final trigger
