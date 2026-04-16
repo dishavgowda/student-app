@@ -9,19 +9,16 @@ pipeline {
         ECR_REPO   = "${Constant.ECR_REPO}"
     }
 
+    options {
+        skipDefaultCheckout()
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 deleteDir()
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${Constant.GIT_BRANCH}"]],
-                    userRemoteConfigs: [[
-                        url: Constant.GIT_URL,
-                        credentialsId: Constant.GIT_CREDENTIALS_ID
-                    ]]
-                ])
+                checkout scm   // ✅ IMPORTANT (enables GitHub status tracking)
             }
         }
 
