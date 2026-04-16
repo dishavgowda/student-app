@@ -111,4 +111,18 @@ pipeline {
             }
         }
     }
+    post {
+        started {
+            githubNotify context: 'jenkins-ci', status: 'PENDING'
+        }
+        success {
+            githubNotify context: 'jenkins-ci', status: 'SUCCESS'
+        }
+        failure {
+            githubNotify context: 'jenkins-ci', status: 'FAILURE'
+        }
+        unstable {
+            githubNotify context: 'jenkins-ci', status: 'FAILURE'
+        }
+    }
 }
